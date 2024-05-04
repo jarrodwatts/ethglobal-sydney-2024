@@ -3,7 +3,7 @@
 import { fontSans, fontHeading } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 import { createThirdwebClient, getContract } from "thirdweb";
-import { base, baseSepolia } from "thirdweb/chains";
+import { baseSepolia } from "thirdweb/chains";
 import Link from "next/link";
 import {
   ConnectButton,
@@ -19,9 +19,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Image from "next/image";
-import { balanceOf, claimTo } from "thirdweb/extensions/erc721";
+import { claimTo } from "thirdweb/extensions/erc721";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import MoreInfo from "@/components/MoreInfo";
 
 export default function Home() {
   const chainToUse = baseSepolia;
@@ -44,7 +45,6 @@ export default function Home() {
     <section
       className={cn("space-y-6 pb-12 pt-16 md:pb-2 md:pt-16 lg:py-24 mb-2")}
     >
-      {/* Hero section - Title and brief description */}
       <div className="container flex max-w-[64rem] flex-col items-center gap-4 text-center mt-12">
         <h1
           className={cn(
@@ -126,7 +126,7 @@ export default function Home() {
               Mint your NFT
             </h2>
             <h3 className="scroll-m-20 text-lg font-bold tracking-tight mt-2 text-center md:text-left">
-              No extensions. No mnemonics. No gas fees.
+              No extensions. No mnemonics. No gas fees. Full security.
             </h3>
 
             <p className="leading-7 mt-2 md:text-left mb-4">
@@ -217,6 +217,8 @@ export default function Home() {
             )}
           </div>
         </Card>
+
+        <MoreInfo />
       </div>
     </section>
   );
