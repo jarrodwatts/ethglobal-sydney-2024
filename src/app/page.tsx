@@ -3,13 +3,12 @@
 import { fontSans, fontHeading } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 import { createThirdwebClient, getContract } from "thirdweb";
-import { baseSepolia } from "thirdweb/chains";
+import { base, baseSepolia } from "thirdweb/chains";
 import Link from "next/link";
 import {
   ConnectButton,
   TransactionButton,
   useActiveAccount,
-  useActiveWallet,
 } from "thirdweb/react";
 import { createWallet } from "thirdweb/wallets";
 import {
@@ -20,18 +19,24 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Image from "next/image";
-import { getOwnedNFTs, claimTo } from "thirdweb/extensions/erc721";
+import { balanceOf, claimTo } from "thirdweb/extensions/erc721";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 export default function Home() {
+  const chainToUse = baseSepolia;
+
   const thirdwebClient = createThirdwebClient({
     clientId: process.env.NEXT_PUBLIC_THIRDWEB_API_KEY!,
   });
+
+  const { toast } = useToast();
 
   const account = useActiveAccount();
 
   const contract = getContract({
     client: thirdwebClient,
-    chain: baseSepolia,
+    chain: chainToUse,
     address: "0xe9a7eCaB146d7b3756FaC610e70eD8B3c6197fB6",
   });
 
@@ -57,7 +62,7 @@ export default function Home() {
           )}
         >
           An account abstraction onboarding demo without any extension,
-          mnemonics, or gas fee. Powered by{" "}
+          mnemonics, or gas fees. Powered by{" "}
           <Link
             href="https://www.coinbase.com/en-au/wallet/smart-wallet"
             target="_blank"
@@ -111,14 +116,14 @@ export default function Home() {
             <CardContent className="pb-4">
               <CardTitle>Magical Kangaroo</CardTitle>
               <CardDescription className="mt-2">
-                A magical kangaroo that can jump over the moon.
+                A magical gasless Kangaroo.
               </CardDescription>
             </CardContent>
           </Card>
 
           <div className="flex flex-col items-center justify-center md:items-start md:justify-normal p-2 pt-4">
             <h2 className="mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
-              Mint your NFT.
+              Mint your NFT
             </h2>
             <h3 className="scroll-m-20 text-lg font-bold tracking-tight mt-2 text-center md:text-left">
               No extensions. No mnemonics. No gas fees.
@@ -142,7 +147,7 @@ export default function Home() {
                       walletConfig: {
                         options: "smartWalletOnly",
                       },
-                      chains: [baseSepolia],
+                      chains: [chainToUse],
                       appMetadata: {
                         name: "ETH Global Sydney 2024",
                         description: "Hackathon project by Jarrod Watts",
@@ -163,12 +168,11 @@ export default function Home() {
 
             {account && (
               <>
-                {}
                 <p className="leading-7 mt-2 md:text-left mb-4">
                   You just created a new EOA wallet with the secp256r1 curve
                   using <strong>RIP-7212</strong>. This wallet will be the admin
-                  of the smart contract wallet you are about to deploy using{" "}
-                  <strong>EIP-4337</strong> when you mint your NFT.
+                  of the smart contract wallet you deploy using{" "}
+                  <strong>EIP-4337</strong> as you mint your NFT.
                 </p>
 
                 <TransactionButton
@@ -180,20 +184,31 @@ export default function Home() {
                       quantity: BigInt(1),
                     })
                   }
-                  onTransactionSent={(result) => {
-                    console.log(
-                      "Transaction submitted",
-                      result.transactionHash
-                    );
-                  }}
                   onTransactionConfirmed={(receipt) => {
-                    console.log(
-                      "Transaction confirmed",
-                      receipt.transactionHash
-                    );
+                    toast({
+                      title: "Transaction confirmed! 🎉 ",
+                      description: "You have successfully minted your  NFT.",
+                      action: (
+                        <ToastAction altText="View Transaction">
+                          <Link
+                            href={`${
+                              chainToUse!.blockExplorers![0]!.url as string
+                            }/tx/${receipt.transactionHash}`}
+                          >
+                            View Transaction
+                          </Link>
+                        </ToastAction>
+                      ),
+                    });
                   }}
                   onError={(error) => {
                     console.error("Transaction error", error);
+                    toast({
+                      variant: "destructive",
+                      title: "Something went wrong!",
+                      description:
+                        "Transaction failed. Please check the console for details.",
+                    });
                   }}
                 >
                   Mint NFT
