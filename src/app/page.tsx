@@ -28,7 +28,7 @@ export default function Home() {
   const chainToUse = baseSepolia;
 
   const thirdwebClient = createThirdwebClient({
-    clientId: process.env.NEXT_PUBLIC_THIRDWEB_API_KEY!,
+    clientId: process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID!,
   });
 
   const { toast } = useToast();
